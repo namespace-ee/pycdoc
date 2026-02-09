@@ -52,21 +52,24 @@ jobs:
           # Skip 32-bit builds and musllinux
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
           # Install build dependencies in the container
-          CIBW_BEFORE_ALL_LINUX: |
-            yum install -y openssl-devel libxml2-devel zlib-devel || \
-            apt-get update && apt-get install -y libssl-dev libxml2-dev zlib1g-dev
-          # Install flatbuffers from source on Linux
-          CIBW_BEFORE_BUILD_LINUX: |
-            uv pip install --system cmake swig
-            if ! command -v flatc &> /dev/null; then
-              cd /tmp && \
-              curl -L https://github.com/google/flatbuffers/archive/refs/tags/v24.3.25.tar.gz | tar xz && \
-              cd flatbuffers-24.3.25 && \
-              cmake -B build -DCMAKE_BUILD_TYPE=Release -DFLATBUFFERS_BUILD_TESTS=OFF && \
-              cmake --build build --target install
+          CIBW_BEFORE_ALL_LINUX: >
+            if command -v yum; then
+              yum install -y openssl-devel libxml2-devel zlib-devel;
+            elif command -v apt-get; then
+              apt-get update && apt-get install -y libssl-dev libxml2-dev zlib1g-dev;
             fi
-          CIBW_BEFORE_BUILD_MACOS: uv pip install --system cmake swig
-          CIBW_BEFORE_BUILD_WINDOWS: uv pip install --system cmake swig
+          # Install flatbuffers from source on Linux
+          CIBW_BEFORE_BUILD_LINUX: >
+            pip install cmake swig &&
+            if ! command -v flatc; then
+              cd /tmp &&
+              curl -L https://github.com/google/flatbuffers/archive/refs/tags/v24.3.25.tar.gz | tar xz &&
+              cd flatbuffers-24.3.25 &&
+              cmake -B build -DCMAKE_BUILD_TYPE=Release -DFLATBUFFERS_BUILD_TESTS=OFF &&
+              cmake --build build --target install;
+            fi
+          CIBW_BEFORE_BUILD_MACOS: pip install cmake swig
+          CIBW_BEFORE_BUILD_WINDOWS: pip install cmake swig
           # Set OpenSSL path on macOS
           CIBW_ENVIRONMENT_MACOS: >
             OPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
