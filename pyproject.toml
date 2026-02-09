@@ -1,0 +1,62 @@
+[build-system]
+requires = ["scikit-build-core>=0.10", "swig>=4.0"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "pycdoc"
+version = "0.1.0"
+description = "Python bindings for libcdoc - read and write encrypted CDOC containers"
+readme = "README.md"
+license = "LGPL-2.1-or-later"
+license-files = ["LICENSE"]
+requires-python = ">=3.9"
+authors = [
+    { name = "Madis Väin", email = "madisvain@gmail.com" }
+]
+keywords = ["cdoc", "encryption", "decryption", "container", "estonia", "id-card", "cdoc2"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: C++",
+    "Topic :: Security :: Cryptography",
+]
+
+[project.optional-dependencies]
+ldap = ["ldap3>=2.9"]
+test = ["pytest>=7.0"]
+
+[project.urls]
+Homepage = "https://github.com/namespace-ee/pycdoc"
+Documentation = "https://github.com/namespace-ee/pycdoc"
+Repository = "https://github.com/namespace-ee/pycdoc"
+Changelog = "https://github.com/namespace-ee/pycdoc/blob/main/CHANGELOG.md"
+Issues = "https://github.com/namespace-ee/pycdoc/issues"
+
+[tool.scikit-build]
+cmake.build-type = "Release"
+cmake.args = [
+    "-DBUILD_SHARED_LIBS=OFF",
+    "-DBUILD_TOOLS=OFF",
+    "-DFRAMEWORK=OFF",
+    "-DLIBCDOC_WITH_DOCS=OFF",
+]
+wheel.install-dir = "pycdoc"
+wheel.packages = []
+wheel.exclude = ["pycdoc/lib/**", "pycdoc/include/**"]
+build-dir = "build/{wheel_tag}"
+
+[tool.scikit-build.cmake.define]
+BUILD_SHARED_LIBS = "OFF"
+BUILD_TOOLS = "OFF"
+FRAMEWORK = "OFF"
+LIBCDOC_WITH_DOCS = "OFF"

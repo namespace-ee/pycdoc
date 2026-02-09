@@ -1,0 +1,130 @@
+name: Build
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build_wheels:
+    name: Build wheels on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Clone libcdoc
+        run: git clone https://github.com/open-eid/libcdoc.git
+
+      - name: Install dependencies (Ubuntu)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev libxml2-dev zlib1g-dev
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install openssl@3 libxml2 flatbuffers
+
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install openssl
+
+      - name: Build wheels
+        uses: pypa/cibuildwheel@v2.22.0
+        env:
+          # Use uv for faster builds
+          CIBW_BUILD_FRONTEND: "build[uv]"
+          # Build for Python 3.9-3.13
+          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
+          # Skip 32-bit builds and musllinux
+          CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
+          # Install build dependencies in the container
+          CIBW_BEFORE_ALL_LINUX: |
+            yum install -y openssl-devel libxml2-devel zlib-devel || \
+            apt-get update && apt-get install -y libssl-dev libxml2-dev zlib1g-dev
+          # Install flatbuffers from source on Linux
+          CIBW_BEFORE_BUILD_LINUX: |
+            uv pip install --system cmake swig
+            if ! command -v flatc &> /dev/null; then
+              cd /tmp && \
+              curl -L https://github.com/google/flatbuffers/archive/refs/tags/v24.3.25.tar.gz | tar xz && \
+              cd flatbuffers-24.3.25 && \
+              cmake -B build -DCMAKE_BUILD_TYPE=Release -DFLATBUFFERS_BUILD_TESTS=OFF && \
+              cmake --build build --target install
+            fi
+          CIBW_BEFORE_BUILD_MACOS: uv pip install --system cmake swig
+          CIBW_BEFORE_BUILD_WINDOWS: uv pip install --system cmake swig
+          # Set OpenSSL path on macOS
+          CIBW_ENVIRONMENT_MACOS: >
+            OPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
+            CMAKE_PREFIX_PATH=/opt/homebrew
+          # Repair wheels
+          CIBW_REPAIR_WHEEL_COMMAND_LINUX: auditwheel repair -w {dest_dir} {wheel}
+          CIBW_REPAIR_WHEEL_COMMAND_MACOS: delocate-wheel -w {dest_dir} {wheel}
+          # Test the wheel
+          CIBW_TEST_REQUIRES: pytest
+          CIBW_TEST_COMMAND: pytest {project}/tests -v
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.os }}
+          path: ./wheelhouse/*.whl
+
+  build_sdist:
+    name: Build source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Clone libcdoc
+        run: git clone https://github.com/open-eid/libcdoc.git
+
+      - name: Build sdist
+        run: uv build --sdist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+
+  publish:
+    name: Publish to PyPI
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pycdoc
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: dist
+          merge-multiple: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdist
+          path: dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
