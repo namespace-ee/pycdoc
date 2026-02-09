@@ -34,7 +34,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libssl-dev libxml2-dev zlib1g-dev flatbuffers-compiler
+          sudo apt-get install -y libssl-dev libxml2-dev zlib1g-dev flatbuffers-compiler libflatbuffers-dev
 
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
