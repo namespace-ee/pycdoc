@@ -62,7 +62,7 @@ jobs:
         run: |
           uv venv
           uv pip install dist/*.whl pytest cryptography
-          uv run pytest tests/ -v
+          uv run --no-project pytest tests/ -v
 
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
