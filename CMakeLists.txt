@@ -47,20 +47,24 @@ macro(find_package)
     _find_package(${ARGV})
 endmacro()
 
-# Set up SWIG for Python - use libcdoc as module name (matches SWIG %module directive)
+# Set up SWIG for Python using our custom wrapper that adds Python-specific
+# template instantiations (ByteVector, StringVector, etc.) and director support
+set(PYCDOC_SWIG_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/swig/pycdoc.i)
 set(CMAKE_SWIG_FLAGS "")
-set_property(SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/libcdoc/libcdoc.i PROPERTY CPLUSPLUS ON)
-set_property(SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/libcdoc/libcdoc.i PROPERTY SWIG_MODULE_NAME libcdoc)
-# Set SWIG include directories
-set_property(SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/libcdoc/libcdoc.i
-    PROPERTY INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/libcdoc/cdoc)
+set_property(SOURCE ${PYCDOC_SWIG_SOURCE} PROPERTY CPLUSPLUS ON)
+set_property(SOURCE ${PYCDOC_SWIG_SOURCE} PROPERTY SWIG_MODULE_NAME libcdoc)
+# Set SWIG include directories - need both libcdoc/ (for libcdoc.i) and libcdoc/cdoc/ (for headers)
+set_property(SOURCE ${PYCDOC_SWIG_SOURCE}
+    PROPERTY INCLUDE_DIRECTORIES
+    ${CMAKE_CURRENT_SOURCE_DIR}/libcdoc
+    ${CMAKE_CURRENT_SOURCE_DIR}/libcdoc/cdoc)
 
 # Create the Python extension
 swig_add_library(pycdoc_swig
     TYPE MODULE
     LANGUAGE python
     OUTPUT_DIR ${CMAKE_BINARY_DIR}/pycdoc
-    SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/libcdoc/libcdoc.i
+    SOURCES ${PYCDOC_SWIG_SOURCE}
 )
 
 # Include directories for C++ compilation
@@ -74,7 +78,7 @@ set_target_properties(pycdoc_swig PROPERTIES
     OUTPUT_NAME "_libcdoc"
     PREFIX ""
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/pycdoc
-    SWIG_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/libcdoc/cdoc
+    SWIG_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/libcdoc;${CMAKE_CURRENT_SOURCE_DIR}/libcdoc/cdoc"
 )
 
 # Link against cdoc and Python
