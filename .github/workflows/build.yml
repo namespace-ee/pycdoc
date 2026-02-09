@@ -9,14 +9,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    name: Test on ${{ matrix.os }} / Python ${{ matrix.python }}
+  build:
+    name: Build wheel on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-14]
-        python: ["3.11", "3.12", "3.13"]
 
     steps:
       - uses: actions/checkout@v4
@@ -25,7 +24,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
 
       - name: Set up Python
-        run: uv python install ${{ matrix.python }}
+        run: uv python install 3.12
 
       - name: Clone libcdoc
         run: git clone https://github.com/open-eid/libcdoc.git
@@ -41,14 +40,46 @@ jobs:
         run: |
           brew install openssl@3 libxml2 flatbuffers
 
-      - name: Build and test
-        run: |
-          uv venv
-          uv pip install -e ".[test]"
-          uv run pytest tests/ -v
+      - name: Build wheel
+        run: uv build --wheel
         env:
           OPENSSL_ROOT_DIR: ${{ runner.os == 'macOS' && '/opt/homebrew/opt/openssl@3' || '' }}
           CMAKE_PREFIX_PATH: ${{ runner.os == 'macOS' && '/opt/homebrew' || '' }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}
+          path: dist/*.whl
+
+  test:
+    name: Test on ${{ matrix.os }}
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-14]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Download wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: wheel-${{ matrix.os }}
+          path: dist
+
+      - name: Install wheel and test
+        run: |
+          uv venv
+          uv pip install dist/*.whl pytest cryptography
+          uv run pytest tests/ -v
 
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
