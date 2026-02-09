@@ -4,6 +4,25 @@ project(pycdoc VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
+# Apply Python SWIG bindings patch to libcdoc
+# This adds Python-specific typemaps and fixes LockVector template ordering
+find_program(PATCH_EXECUTABLE patch)
+if(PATCH_EXECUTABLE)
+    execute_process(
+        COMMAND ${PATCH_EXECUTABLE} -p1 --forward -i ${CMAKE_CURRENT_SOURCE_DIR}/patches/libcdoc-python.patch
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libcdoc
+        RESULT_VARIABLE PATCH_RESULT
+        OUTPUT_QUIET
+        ERROR_QUIET
+    )
+    # Result 0 = success, 1 = already applied (which is fine)
+    if(PATCH_RESULT GREATER 1)
+        message(WARNING "Failed to apply libcdoc-python.patch (error ${PATCH_RESULT})")
+    endif()
+else()
+    message(FATAL_ERROR "patch executable not found - required to build Python bindings")
+endif()
+
 # Find required packages
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
 find_package(SWIG 4.0 REQUIRED)
