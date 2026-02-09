@@ -91,7 +91,7 @@ jobs:
       - name: Install dependencies (macOS)
         if: runner.os == 'macOS'
         run: |
-          brew install openssl@3 libxml2 flatbuffers
+          brew install openssl@3 libxml2 flatbuffers cmake swig
 
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
@@ -128,7 +128,7 @@ jobs:
               cmake -B build -DCMAKE_BUILD_TYPE=Release -DFLATBUFFERS_BUILD_TESTS=OFF &&
               cmake --build build --target install;
             fi
-          CIBW_BEFORE_BUILD_MACOS: uv pip install --system cmake swig
+          # cmake and swig installed via brew in Install dependencies step
           CIBW_BEFORE_BUILD_WINDOWS: uv pip install --system cmake swig
           # Set OpenSSL path on macOS
           CIBW_ENVIRONMENT_MACOS: >
