@@ -43,6 +43,7 @@ jobs:
 
       - name: Build and test
         run: |
+          uv venv
           uv pip install -e ".[test]"
           uv run pytest tests/ -v
         env:
