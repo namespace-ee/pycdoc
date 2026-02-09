@@ -10,12 +10,8 @@ on:
 
 jobs:
   build:
-    name: Build wheel on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-14]
+    name: Build wheel
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -29,36 +25,23 @@ jobs:
       - name: Clone libcdoc
         run: git clone https://github.com/open-eid/libcdoc.git
 
-      - name: Install dependencies (Ubuntu)
-        if: runner.os == 'Linux'
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libssl-dev libxml2-dev zlib1g-dev flatbuffers-compiler libflatbuffers-dev
 
-      - name: Install dependencies (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew install openssl@3 libxml2 flatbuffers
-
       - name: Build wheel
         run: uv build --wheel
-        env:
-          OPENSSL_ROOT_DIR: ${{ runner.os == 'macOS' && '/opt/homebrew/opt/openssl@3' || '' }}
-          CMAKE_PREFIX_PATH: ${{ runner.os == 'macOS' && '/opt/homebrew' || '' }}
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheel-${{ matrix.os }}
+          name: wheel
           path: dist/*.whl
 
   test:
-    name: Test on ${{ matrix.os }}
+    name: Test
     needs: build
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-14]
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -72,7 +55,7 @@ jobs:
       - name: Download wheel
         uses: actions/download-artifact@v4
         with:
-          name: wheel-${{ matrix.os }}
+          name: wheel
           path: dist
 
       - name: Install wheel and test
