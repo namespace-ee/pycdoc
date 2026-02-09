@@ -56,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -92,16 +92,20 @@ jobs:
           CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
           # Skip 32-bit builds and musllinux
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
-          # Install build dependencies in the container
+          # Install build dependencies in the container (need OpenSSL 3.x)
           CIBW_BEFORE_ALL_LINUX: >
-            if command -v yum; then
-              yum install -y openssl-devel libxml2-devel zlib-devel;
-            elif command -v apt-get; then
-              apt-get update && apt-get install -y libssl-dev libxml2-dev zlib1g-dev;
-            fi
+            yum install -y perl-IPC-Cmd libxml2-devel zlib-devel &&
+            curl -L https://www.openssl.org/source/openssl-3.0.13.tar.gz | tar xz &&
+            cd openssl-3.0.13 &&
+            ./config --prefix=/usr/local/openssl3 --openssldir=/usr/local/openssl3 &&
+            make -j$(nproc) &&
+            make install
+          CIBW_ENVIRONMENT_LINUX: >
+            OPENSSL_ROOT_DIR=/usr/local/openssl3
+            PKG_CONFIG_PATH=/usr/local/openssl3/lib64/pkgconfig
           # Install flatbuffers from source on Linux
           CIBW_BEFORE_BUILD_LINUX: >
-            pip install cmake swig &&
+            uv pip install --system cmake swig &&
             if ! command -v flatc; then
               cd /tmp &&
               curl -L https://github.com/google/flatbuffers/archive/refs/tags/v24.3.25.tar.gz | tar xz &&
@@ -109,8 +113,8 @@ jobs:
               cmake -B build -DCMAKE_BUILD_TYPE=Release -DFLATBUFFERS_BUILD_TESTS=OFF &&
               cmake --build build --target install;
             fi
-          CIBW_BEFORE_BUILD_MACOS: pip install cmake swig
-          CIBW_BEFORE_BUILD_WINDOWS: pip install cmake swig
+          CIBW_BEFORE_BUILD_MACOS: uv pip install --system cmake swig
+          CIBW_BEFORE_BUILD_WINDOWS: uv pip install --system cmake swig
           # Set OpenSSL path on macOS
           CIBW_ENVIRONMENT_MACOS: >
             OPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
