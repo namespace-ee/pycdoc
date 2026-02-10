@@ -96,8 +96,7 @@ jobs:
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         run: |
-          vcpkg install zlib:x64-windows libxml2:x64-windows flatbuffers:x64-windows
-          choco install openssl
+          vcpkg install openssl:x64-windows zlib:x64-windows libxml2:x64-windows flatbuffers:x64-windows
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.22.0
