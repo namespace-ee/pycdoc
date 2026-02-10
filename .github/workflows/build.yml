@@ -130,10 +130,11 @@ jobs:
             fi
           # cmake and swig installed via brew in Install dependencies step
           CIBW_BEFORE_BUILD_WINDOWS: uv pip install --system cmake swig
-          # Set OpenSSL path on macOS
+          # Set OpenSSL path on macOS and require macOS 14+ for C++23 features
           CIBW_ENVIRONMENT_MACOS: >
             OPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
             CMAKE_PREFIX_PATH=/opt/homebrew
+            MACOSX_DEPLOYMENT_TARGET=14.0
           # Repair wheels
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: auditwheel repair -w {dest_dir} {wheel}
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: delocate-wheel -w {dest_dir} {wheel}
