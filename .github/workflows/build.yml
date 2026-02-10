@@ -118,7 +118,7 @@ jobs:
             source /opt/rh/gcc-toolset-13/enable &&
             ./config --prefix=/usr/local/openssl3 --openssldir=/usr/local/openssl3 &&
             make -j$(nproc) &&
-            make install
+            make install_sw install_ssldirs
           CIBW_ENVIRONMENT_LINUX: >
             OPENSSL_ROOT_DIR=/usr/local/openssl3
             PKG_CONFIG_PATH=/usr/local/openssl3/lib64/pkgconfig
