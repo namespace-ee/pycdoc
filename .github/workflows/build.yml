@@ -96,6 +96,7 @@ jobs:
       - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
         run: |
+          vcpkg install zlib:x64-windows libxml2:x64-windows flatbuffers:x64-windows
           choco install openssl
 
       - name: Build wheels
@@ -130,6 +131,9 @@ jobs:
             fi
           # cmake and swig installed via brew in Install dependencies step
           CIBW_BEFORE_BUILD_WINDOWS: uv pip install --system cmake swig
+          # Set vcpkg toolchain for Windows
+          CIBW_ENVIRONMENT_WINDOWS: >
+            CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
           # Set OpenSSL path on macOS; Homebrew OpenSSL requires macOS 15+
           CIBW_ENVIRONMENT_MACOS: >
             OPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
