@@ -135,7 +135,7 @@ jobs:
               cmake --build build --target install;
             fi
           # cmake and swig installed via brew in Install dependencies step
-          CIBW_BEFORE_BUILD_WINDOWS: uv pip install --system cmake swig
+          CIBW_BEFORE_BUILD_WINDOWS: uv pip install --system cmake swig delvewheel
           # Set vcpkg toolchain for Windows
           CIBW_ENVIRONMENT_WINDOWS: >
             CMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
@@ -144,9 +144,10 @@ jobs:
             OPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
             CMAKE_PREFIX_PATH=/opt/homebrew
             MACOSX_DEPLOYMENT_TARGET=15.0
-          # Repair wheels
+          # Repair wheels (bundle native dependencies)
           CIBW_REPAIR_WHEEL_COMMAND_LINUX: auditwheel repair -w {dest_dir} {wheel}
           CIBW_REPAIR_WHEEL_COMMAND_MACOS: delocate-wheel -w {dest_dir} {wheel}
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair --add-path C:/vcpkg/installed/x64-windows/bin -w {dest_dir} {wheel}
           # Test the wheel
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {project}/tests -v
