@@ -34,37 +34,13 @@ set(FRAMEWORK OFF CACHE BOOL "Disable framework build" FORCE)
 set(BUILD_TOOLS OFF CACHE BOOL "Don't build cdoc-tool" FORCE)
 set(LIBCDOC_WITH_DOCS OFF CACHE BOOL "Don't build docs" FORCE)
 
-# Override find_package for SWIG within libcdoc scope
-# Create a macro that shadows find_package for SWIG
-macro(find_package_libcdoc_override)
-    if("${ARGV0}" STREQUAL "SWIG")
-        # Don't find SWIG - we handle it ourselves
-        set(SWIG_FOUND FALSE)
-    else()
-        _find_package(${ARGV})
-    endif()
-endmacro()
-
-# Save the real find_package and use our override
-cmake_policy(PUSH)
-cmake_policy(SET CMP0057 NEW)
-macro(_find_package)
-    find_package(${ARGV})
-endmacro()
-
-# Temporarily replace find_package with our override before adding libcdoc
-macro(find_package)
-    find_package_libcdoc_override(${ARGV})
-endmacro()
+# Prevent libcdoc from finding SWIG - we handle SWIG bindings ourselves
+set(CMAKE_DISABLE_FIND_PACKAGE_SWIG TRUE)
 
 # Add libcdoc as subdirectory
 add_subdirectory(libcdoc)
 
-# Restore find_package
-cmake_policy(POP)
-macro(find_package)
-    _find_package(${ARGV})
-endmacro()
+set(CMAKE_DISABLE_FIND_PACKAGE_SWIG FALSE)
 
 # Set up SWIG for Python using our custom wrapper that adds Python-specific
 # template instantiations (ByteVector, StringVector, etc.) and director support
