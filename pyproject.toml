@@ -9,7 +9,7 @@ description = "Python bindings for libcdoc - read and write encrypted CDOC conta
 readme = "README.md"
 license = "LGPL-2.1-or-later"
 license-files = ["LICENSE"]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [
     { name = "Madis Väin", email = "madisvain@gmail.com" }
 ]
@@ -21,7 +21,6 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Operating System :: Microsoft :: Windows",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -43,6 +42,7 @@ Changelog = "https://github.com/namespace-ee/pycdoc/blob/main/CHANGELOG.md"
 Issues = "https://github.com/namespace-ee/pycdoc/issues"
 
 [tool.scikit-build]
+cmake.version = ">=3.20"
 cmake.build-type = "Release"
 cmake.args = [
     "-DBUILD_SHARED_LIBS=OFF",
@@ -52,8 +52,9 @@ cmake.args = [
 ]
 wheel.install-dir = "pycdoc"
 wheel.packages = []
-wheel.exclude = ["pycdoc/lib/**", "pycdoc/include/**"]
 build-dir = "build/{wheel_tag}"
+# git submodules are excluded from sdists by default (git archive ignores them)
+sdist.include = ["libcdoc/**"]
 
 [tool.scikit-build.cmake.define]
 BUILD_SHARED_LIBS = "OFF"

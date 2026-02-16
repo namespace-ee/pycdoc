@@ -68,8 +68,7 @@ from pycdoc.libcdoc import (
     CertificateList,
 
     # Logging
-    ILogger,
-    ConsoleLogger,
+    Logger,
 )
 
 __version__ = "0.1.0"
@@ -311,6 +310,5 @@ __all__ = [
     "CertificateList",
 
     # Logging
-    "ILogger",
-    "ConsoleLogger",
+    "Logger",
 ]

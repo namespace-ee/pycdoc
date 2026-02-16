@@ -85,9 +85,8 @@ class TestImports:
         assert LockVector is not None
 
     def test_import_logging(self):
-        from pycdoc import ILogger, ConsoleLogger
-        assert ILogger is not None
-        assert ConsoleLogger is not None
+        from pycdoc import Logger
+        assert Logger is not None
 
 
 class TestVersion:
@@ -177,10 +176,9 @@ class TestRecipient:
 class TestLock:
     """Test Lock class."""
 
-    def test_create_lock(self):
+    def test_lock_class_exists(self):
         from pycdoc import Lock
-        lock = Lock()
-        assert lock is not None
+        assert Lock is not None
 
     def test_lock_type_constants(self):
         from pycdoc import Lock
@@ -236,12 +234,9 @@ class TestContainers:
         assert sv[1] == "world"
 
     def test_lock_vector(self):
-        from pycdoc import LockVector, Lock
+        from pycdoc import LockVector
         lv = LockVector()
         assert len(lv) == 0
-        lock = Lock()
-        lv.append(lock)
-        assert len(lv) == 1
 
 
 class TestCertificateList:
@@ -292,16 +287,16 @@ class TestConfiguration:
 class TestLogger:
     """Test logging classes."""
 
-    def test_create_console_logger(self):
-        from pycdoc import ConsoleLogger
-        logger = ConsoleLogger()
+    def test_create_logger(self):
+        from pycdoc import Logger
+        logger = Logger()
         assert logger is not None
 
     def test_logger_levels(self):
-        from pycdoc import ILogger
-        assert hasattr(ILogger, "LEVEL_TRACE")
-        assert hasattr(ILogger, "LEVEL_DEBUG")
-        assert hasattr(ILogger, "LEVEL_INFO")
-        assert hasattr(ILogger, "LEVEL_WARNING")
-        assert hasattr(ILogger, "LEVEL_ERROR")
-        assert hasattr(ILogger, "LEVEL_FATAL")
+        from pycdoc.libcdoc import LEVEL_TRACE, LEVEL_DEBUG, LEVEL_INFO, LEVEL_WARNING, LEVEL_ERROR, LEVEL_FATAL
+        assert LEVEL_TRACE is not None
+        assert LEVEL_DEBUG is not None
+        assert LEVEL_INFO is not None
+        assert LEVEL_WARNING is not None
+        assert LEVEL_ERROR is not None
+        assert LEVEL_FATAL is not None

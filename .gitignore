@@ -26,8 +26,8 @@ test-env/
 .DS_Store
 Thumbs.db
 
-# Upstream library (clone separately with: git clone https://github.com/open-eid/libcdoc.git)
-libcdoc/
+# Upstream library (git submodule)
+# libcdoc/ is tracked as a submodule — do not ignore
 
 # Claude Code
 .claude/
