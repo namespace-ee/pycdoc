@@ -7,20 +7,20 @@ CDOC is a file format for encrypting documents, used primarily in Estonia for se
 ## Installation
 
 ```bash
-pip install pycdoc
+uv add pycdoc
 ```
 
 ## Requirements
 
 ### Runtime
-- Python 3.9+
+- Python 3.10+
 - OpenSSL 3.0+ (usually pre-installed on modern systems)
 
 ### Building from Source
 
 Building from source requires:
-- Python 3.9+
-- CMake 3.18+
+- Python 3.10+
+- CMake 3.20+
 - SWIG 4.0+
 - OpenSSL 3.0+
 - libxml2
@@ -48,7 +48,7 @@ sudo dnf install cmake swig openssl-devel libxml2-devel zlib-devel flatbuffers-d
 Install with LDAP support for certificate lookup:
 
 ```bash
-pip install pycdoc[ldap]
+uv add "pycdoc[ldap]"
 ```
 
 ### Encrypting Files
@@ -109,43 +109,33 @@ Use `pycdoc.get_error_str(code)` to get human-readable error descriptions.
 
 ## Building from Source
 
-1. Clone the repository:
+1. Clone the repository with submodules:
 ```bash
-git clone https://github.com/namespace-ee/pycdoc.git
+git clone --recurse-submodules https://github.com/namespace-ee/pycdoc.git
 cd pycdoc
 ```
 
-2. Clone libcdoc:
+2. Build the wheel:
 ```bash
-git clone https://github.com/open-eid/libcdoc.git
+uv build --wheel
 ```
 
-3. Build the wheel:
+3. Install the wheel:
 ```bash
-pip install build
-python -m build --wheel
-```
-
-4. Install the wheel:
-```bash
-pip install dist/pycdoc-*.whl
+uv pip install dist/pycdoc-*.whl
 ```
 
 ## Development
 
 ```bash
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate
-
-# Install build dependencies
-pip install build scikit-build-core swig
-
 # Build wheel
-python -m build --wheel
+uv build --wheel
 
 # Install in development mode (rebuild required after changes)
-pip install dist/pycdoc-*.whl --force-reinstall
+uv pip install --force-reinstall dist/pycdoc-*.whl
+
+# Run tests
+uv run pytest tests/ -v
 ```
 
 ## License
