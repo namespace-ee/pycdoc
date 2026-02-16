@@ -96,32 +96,32 @@ def fetch_certificate_from_ldap(personal_id: str) -> tuple[bytes, str]:
 def create_cdoc(cert_der: bytes, cn: str, output_file: str, files: list[tuple[str, bytes]]):
     """Create a CDOC 2.0 file."""
     print(f"\nCreating CDOC file: {output_file}")
-    writer = pycdoc.CDocWriter.createWriter(2, output_file, None, None, None)
+    writer = pycdoc.CDocWriter.create_writer(2, output_file, None, None, None)
     if writer is None:
         raise RuntimeError("Failed to create writer")
 
-    recipient = pycdoc.Recipient.makeCertificate(cn, cert_der)
-    result = writer.addRecipient(recipient)
+    recipient = pycdoc.Recipient.make_certificate(cn, cert_der)
+    result = writer.add_recipient(recipient)
     if result != pycdoc.OK:
-        raise RuntimeError(f"addRecipient failed: {result}")
+        raise RuntimeError(f"add_recipient failed: {result}")
     print(f"  Recipient: {cn}")
 
-    result = writer.beginEncryption()
+    result = writer.begin_encryption()
     if result != pycdoc.OK:
-        raise RuntimeError(f"beginEncryption failed: {result}")
+        raise RuntimeError(f"begin_encryption failed: {result}")
 
     for filename, content in files:
-        result = writer.addFile(filename, len(content))
+        result = writer.add_file(filename, len(content))
         if result != pycdoc.OK:
-            raise RuntimeError(f"addFile failed for {filename}: {result}")
-        result = writer.writeData(content)
+            raise RuntimeError(f"add_file failed for {filename}: {result}")
+        result = writer.write_data(content)
         if result != pycdoc.OK:
-            raise RuntimeError(f"writeData failed for {filename}: {result}")
+            raise RuntimeError(f"write_data failed for {filename}: {result}")
         print(f"  Added: {filename} ({len(content)} bytes)")
 
-    result = writer.finishEncryption()
+    result = writer.finish_encryption()
     if result != pycdoc.OK:
-        raise RuntimeError(f"finishEncryption failed: {result}")
+        raise RuntimeError(f"finish_encryption failed: {result}")
 
     del writer
     return os.path.getsize(output_file)
@@ -164,9 +164,9 @@ def main():
     print(f"\nCreated: {args.output} ({size} bytes)")
 
     # Verify
-    reader = pycdoc.CDocReader.createReader(args.output, None, None, None)
+    reader = pycdoc.CDocReader.create_reader(args.output, None, None, None)
     if reader:
-        print(f"\nVerified: CDOC {reader.version} with {len(reader.getLocks())} recipient(s)")
+        print(f"\nVerified: CDOC {reader.version} with {len(reader.get_locks())} recipient(s)")
         del reader
 
     print("\nDecrypt with: DigiDoc4 Client or cdoc-tool decrypt")

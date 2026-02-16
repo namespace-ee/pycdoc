@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 from pycdoc.libcdoc import (
     # Version and utilities
-    getVersion as get_version,
-    getErrorStr as get_error_str,
+    get_version,
+    get_error_str,
 
     # Result codes
     OK,
@@ -182,18 +182,18 @@ def encrypt(
 
     try:
         # Create CDOC 2.0 writer
-        writer = CDocWriter.createWriter(2, output_path, None, None, None)
+        writer = CDocWriter.create_writer(2, output_path, None, None, None)
         if writer is None:
             raise RuntimeError("Failed to create CDOC writer")
 
         # Add recipient
-        recipient = Recipient.makeCertificate(cn, cert_der)
-        result = writer.addRecipient(recipient)
+        recipient = Recipient.make_certificate(cn, cert_der)
+        result = writer.add_recipient(recipient)
         if result != OK:
             raise RuntimeError(f"Failed to add recipient: {get_error_str(result)}")
 
         # Begin encryption
-        result = writer.beginEncryption()
+        result = writer.begin_encryption()
         if result != OK:
             raise RuntimeError(f"Failed to begin encryption: {get_error_str(result)}")
 
@@ -222,15 +222,15 @@ def encrypt(
 
         # Write files
         for name, content in files_to_write:
-            result = writer.addFile(name, len(content))
+            result = writer.add_file(name, len(content))
             if result != OK:
                 raise RuntimeError(f"Failed to add file {name}: {get_error_str(result)}")
-            result = writer.writeData(content)
+            result = writer.write_data(content)
             if result != OK:
                 raise RuntimeError(f"Failed to write data for {name}: {get_error_str(result)}")
 
         # Finish encryption
-        result = writer.finishEncryption()
+        result = writer.finish_encryption()
         if result != OK:
             raise RuntimeError(f"Failed to finish encryption: {get_error_str(result)}")
 

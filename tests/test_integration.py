@@ -55,29 +55,29 @@ class TestCDocCreation:
 
         try:
             # Create writer
-            writer = pycdoc.CDocWriter.createWriter(2, cdoc_path, None, None, None)
+            writer = pycdoc.CDocWriter.create_writer(2, cdoc_path, None, None, None)
             assert writer is not None
 
             # Add recipient
-            recipient = pycdoc.Recipient.makeCertificate("Test User", cert_der)
-            assert recipient.isCertificate()
-            result = writer.addRecipient(recipient)
+            recipient = pycdoc.Recipient.make_certificate("Test User", cert_der)
+            assert recipient.is_certificate()
+            result = writer.add_recipient(recipient)
             assert result == pycdoc.OK
 
             # Begin encryption
-            result = writer.beginEncryption()
+            result = writer.begin_encryption()
             assert result == pycdoc.OK
 
             # Add a file
             content = b"Hello, World! This is a secret message."
-            result = writer.addFile("test.txt", len(content))
+            result = writer.add_file("test.txt", len(content))
             assert result == pycdoc.OK
 
-            result = writer.writeData(content)
+            result = writer.write_data(content)
             assert result == pycdoc.OK
 
             # Finish
-            result = writer.finishEncryption()
+            result = writer.finish_encryption()
             assert result == pycdoc.OK
             del writer
 
@@ -99,10 +99,10 @@ class TestCDocCreation:
             cdoc_path = f.name
 
         try:
-            writer = pycdoc.CDocWriter.createWriter(2, cdoc_path, None, None, None)
-            recipient = pycdoc.Recipient.makeCertificate("Test User", cert_der)
-            writer.addRecipient(recipient)
-            writer.beginEncryption()
+            writer = pycdoc.CDocWriter.create_writer(2, cdoc_path, None, None, None)
+            recipient = pycdoc.Recipient.make_certificate("Test User", cert_der)
+            writer.add_recipient(recipient)
+            writer.begin_encryption()
 
             # Add multiple files
             files = [
@@ -112,12 +112,12 @@ class TestCDocCreation:
             ]
 
             for name, content in files:
-                result = writer.addFile(name, len(content))
+                result = writer.add_file(name, len(content))
                 assert result == pycdoc.OK
-                result = writer.writeData(content)
+                result = writer.write_data(content)
                 assert result == pycdoc.OK
 
-            writer.finishEncryption()
+            writer.finish_encryption()
             del writer
 
             assert os.path.getsize(cdoc_path) > 0
@@ -141,22 +141,22 @@ class TestCDocReading:
 
         try:
             # Create a CDOC file first
-            writer = pycdoc.CDocWriter.createWriter(2, cdoc_path, None, None, None)
-            recipient = pycdoc.Recipient.makeCertificate("Test Recipient", cert_der)
-            writer.addRecipient(recipient)
-            writer.beginEncryption()
-            writer.addFile("test.txt", 5)
-            writer.writeData(b"hello")
-            writer.finishEncryption()
+            writer = pycdoc.CDocWriter.create_writer(2, cdoc_path, None, None, None)
+            recipient = pycdoc.Recipient.make_certificate("Test Recipient", cert_der)
+            writer.add_recipient(recipient)
+            writer.begin_encryption()
+            writer.add_file("test.txt", 5)
+            writer.write_data(b"hello")
+            writer.finish_encryption()
             del writer
 
             # Read it back
-            reader = pycdoc.CDocReader.createReader(cdoc_path, None, None, None)
+            reader = pycdoc.CDocReader.create_reader(cdoc_path, None, None, None)
             assert reader is not None
             assert reader.version == 2
 
             # Get locks
-            locks = reader.getLocks()
+            locks = reader.get_locks()
             assert len(locks) == 1
 
             del reader
@@ -176,17 +176,17 @@ class TestCDocReading:
 
         try:
             # Create a CDOC 2 file
-            writer = pycdoc.CDocWriter.createWriter(2, cdoc_path, None, None, None)
-            recipient = pycdoc.Recipient.makeCertificate("Test", cert_der)
-            writer.addRecipient(recipient)
-            writer.beginEncryption()
-            writer.addFile("test.txt", 4)
-            writer.writeData(b"test")
-            writer.finishEncryption()
+            writer = pycdoc.CDocWriter.create_writer(2, cdoc_path, None, None, None)
+            recipient = pycdoc.Recipient.make_certificate("Test", cert_der)
+            writer.add_recipient(recipient)
+            writer.begin_encryption()
+            writer.add_file("test.txt", 4)
+            writer.write_data(b"test")
+            writer.finish_encryption()
             del writer
 
             # Check version detection
-            version = pycdoc.CDocReader.getCDocFileVersion(cdoc_path)
+            version = pycdoc.CDocReader.get_cdoc_file_version(cdoc_path)
             assert version == 2
 
         finally:

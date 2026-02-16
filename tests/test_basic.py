@@ -164,7 +164,7 @@ class TestRecipient:
     def test_recipient_is_empty(self):
         from pycdoc import Recipient
         r = Recipient()
-        assert r.isEmpty()
+        assert r.is_empty()
 
     def test_recipient_label(self):
         from pycdoc import Recipient
