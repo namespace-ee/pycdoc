@@ -3,9 +3,10 @@ name: CI
 on:
   push:
     branches: [main, master]
-    tags: ["v*"]
   pull_request:
     branches: [main, master]
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
@@ -15,15 +16,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
       - name: Set up Python
         run: uv python install 3.12
-
-      - name: Clone libcdoc
-        run: git clone https://github.com/open-eid/libcdoc.git
 
       - name: Install dependencies
         run: |
@@ -67,7 +67,7 @@ jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'release' && github.event.action == 'published'
     strategy:
       fail-fast: false
       matrix:
@@ -75,12 +75,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-
-      - name: Clone libcdoc
-        run: git clone https://github.com/open-eid/libcdoc.git
 
       - name: Install dependencies (Ubuntu)
         if: runner.os == 'Linux'
@@ -104,7 +103,7 @@ jobs:
           # Use uv for faster builds
           CIBW_BUILD_FRONTEND: "build[uv]"
           # Build for Python 3.9-3.13
-          CIBW_BUILD: "cp39-* cp310-* cp311-* cp312-* cp313-*"
+          CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-* cp314-*"
           # Skip 32-bit builds and musllinux
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
           # Use manylinux_2_28 for GCC 13 (C++23 support)
@@ -115,11 +114,14 @@ jobs:
             dnf install -y gcc-toolset-13 perl-IPC-Cmd libxml2-devel zlib-devel &&
             curl -L https://www.openssl.org/source/openssl-3.0.13.tar.gz | tar xz &&
             cd openssl-3.0.13 &&
-            source /opt/rh/gcc-toolset-13/enable &&
+            CC=/opt/rh/gcc-toolset-13/root/usr/bin/gcc
+            CXX=/opt/rh/gcc-toolset-13/root/usr/bin/g++
             ./config --prefix=/usr/local/openssl3 --openssldir=/usr/local/openssl3 &&
             make -j$(nproc) &&
             make install_sw install_ssldirs
           CIBW_ENVIRONMENT_LINUX: >
+            CC=/opt/rh/gcc-toolset-13/root/usr/bin/gcc
+            CXX=/opt/rh/gcc-toolset-13/root/usr/bin/g++
             OPENSSL_ROOT_DIR=/usr/local/openssl3
             PKG_CONFIG_PATH=/usr/local/openssl3/lib64/pkgconfig
             PATH=/opt/rh/gcc-toolset-13/root/usr/bin:$PATH
@@ -160,15 +162,14 @@ jobs:
   build_sdist:
     name: Build source distribution
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'release' && github.event.action == 'published'
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
-
-      - name: Clone libcdoc
-        run: git clone https://github.com/open-eid/libcdoc.git
 
       - name: Build sdist
         run: uv build --sdist
@@ -182,7 +183,7 @@ jobs:
     name: Publish to PyPI
     needs: [build_wheels, build_sdist]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'release' && github.event.action == 'published'
     environment:
       name: pypi
       url: https://pypi.org/p/pycdoc
