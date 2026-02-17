@@ -46,23 +46,23 @@ def main():
 
     # Create the CDOC writer
     print(f"\nCreating CDOC file: {output_file}")
-    writer = pycdoc.CDocWriter.createWriter(2, output_file, None, None, None)
+    writer = pycdoc.CDocWriter.create_writer(2, output_file, None, None, None)
     if writer is None:
         print("ERROR: Failed to create writer")
         return 1
 
     # Add recipient (the certificate holder can decrypt)
-    recipient = pycdoc.Recipient.makeCertificate("Test User", cert_der)
-    result = writer.addRecipient(recipient)
+    recipient = pycdoc.Recipient.make_certificate("Test User", cert_der)
+    result = writer.add_recipient(recipient)
     if result != pycdoc.OK:
-        print(f"ERROR: addRecipient failed: {result}")
+        print(f"ERROR: add_recipient failed: {result}")
         return 1
     print("  Added recipient: Test User")
 
     # Begin encryption
-    result = writer.beginEncryption()
+    result = writer.begin_encryption()
     if result != pycdoc.OK:
-        print(f"ERROR: beginEncryption failed: {result}")
+        print(f"ERROR: begin_encryption failed: {result}")
         return 1
 
     # Add files to the container
@@ -72,22 +72,22 @@ def main():
     ]
 
     for filename, content in files:
-        result = writer.addFile(filename, len(content))
+        result = writer.add_file(filename, len(content))
         if result != pycdoc.OK:
-            print(f"ERROR: addFile failed for {filename}: {result}")
+            print(f"ERROR: add_file failed for {filename}: {result}")
             return 1
 
-        result = writer.writeData(content)
+        result = writer.write_data(content)
         if result != pycdoc.OK:
-            print(f"ERROR: writeData failed for {filename}: {result}")
+            print(f"ERROR: write_data failed for {filename}: {result}")
             return 1
 
         print(f"  Added file: {filename} ({len(content)} bytes)")
 
     # Finish encryption
-    result = writer.finishEncryption()
+    result = writer.finish_encryption()
     if result != pycdoc.OK:
-        print(f"ERROR: finishEncryption failed: {result}")
+        print(f"ERROR: finish_encryption failed: {result}")
         return 1
 
     # Clean up writer
@@ -99,14 +99,14 @@ def main():
 
     # Read back the CDOC to verify
     print("\nReading CDOC file...")
-    reader = pycdoc.CDocReader.createReader(output_file, None, None, None)
+    reader = pycdoc.CDocReader.create_reader(output_file, None, None, None)
     if reader is None:
         print("ERROR: Failed to create reader")
         return 1
 
     print(f"  CDOC version: {reader.version}")
 
-    locks = reader.getLocks()
+    locks = reader.get_locks()
     print(f"  Recipients: {len(locks)}")
     for i, lock in enumerate(locks):
         print(f"    [{i}] {lock.label}")
