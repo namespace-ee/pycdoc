@@ -46,23 +46,11 @@ Issues = "https://github.com/namespace-ee/pycdoc/issues"
 [tool.scikit-build]
 cmake.version = ">=3.20"
 cmake.build-type = "Release"
-cmake.args = [
-    "-DBUILD_SHARED_LIBS=OFF",
-    "-DBUILD_TOOLS=OFF",
-    "-DFRAMEWORK=OFF",
-    "-DLIBCDOC_WITH_DOCS=OFF",
-]
 wheel.install-dir = "pycdoc"
 wheel.packages = []
 build-dir = "build/{wheel_tag}"
 # git submodules are excluded from sdists by default (git archive ignores them)
 sdist.include = ["libcdoc/**"]
-
-[tool.scikit-build.cmake.define]
-BUILD_SHARED_LIBS = "OFF"
-BUILD_TOOLS = "OFF"
-FRAMEWORK = "OFF"
-LIBCDOC_WITH_DOCS = "OFF"
 
 [tool.bumpversion]
 current_version = "0.1.0"
