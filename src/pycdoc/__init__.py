@@ -7,10 +7,6 @@ A library for reading and writing encrypted CDOC containers.
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing import Union
 
 from pycdoc.libcdoc import (
     # Version and utilities
