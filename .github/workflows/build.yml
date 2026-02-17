@@ -109,12 +109,12 @@ jobs:
           # Use manylinux_2_28 for GCC 13 (C++23 support)
           CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
-          # Install build dependencies in the container (need GCC 13 for C++23, OpenSSL 3.x)
+          # Install build dependencies in the container (need GCC 13 for C++23, OpenSSL 3.5 LTS)
           CIBW_BEFORE_ALL_LINUX: >
             dnf install -y gcc-toolset-13 perl-IPC-Cmd perl-Time-Piece libxml2-devel zlib-devel &&
             source /opt/rh/gcc-toolset-13/enable &&
-            curl -L https://www.openssl.org/source/openssl-3.0.19.tar.gz | tar xz &&
-            cd openssl-3.0.19 &&
+            curl -L https://github.com/openssl/openssl/releases/download/openssl-3.5.5/openssl-3.5.5.tar.gz | tar xz &&
+            cd openssl-3.5.5 &&
             ./config --prefix=/usr/local/openssl3 --openssldir=/usr/local/openssl3 &&
             make -j$(nproc) &&
             make install_sw install_ssldirs

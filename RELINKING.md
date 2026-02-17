@@ -9,7 +9,7 @@ Section 6, you have the right to modify libcdoc and relink. Here's how.
 - CMake 3.20+
 - C++23 compiler (GCC 13+, Clang 16+, MSVC 2022+)
 - SWIG 4.0+
-- System libraries: OpenSSL 3.0+, libxml2, zlib, flatbuffers
+- System libraries: OpenSSL 3.5+, libxml2, zlib, flatbuffers
 
 ## Rebuilding from source distribution
 

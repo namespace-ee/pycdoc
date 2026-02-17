@@ -15,7 +15,6 @@ Python bindings for [libcdoc](https://github.com/open-eid/libcdoc) via SWIG. Pro
 - **Static linking** (`BUILD_SHARED_LIBS=OFF`) — self-contained wheels, LGPL-2.1 compliance via RELINKING.md + sdist source
 - **Patch-based approach** — upstream libcdoc.i is modified via `patches/libcdoc-python.patch` at CMake configure time (rather than forking)
 - **SWIG `%rename` before `%include`** — order matters, rename rules must appear before upstream interface is included
-- **`MACOSX_DEPLOYMENT_TARGET=15.0`** — required by Homebrew OpenSSL 3
 
 ## Test
 
@@ -46,7 +45,7 @@ Never use `git -C <path>` — always run git commands from the working directory
 4. `build_sdist` — on release/PR
 5. `publish` — OIDC trusted publishing to PyPI
 
-Linux wheels build OpenSSL and flatbuffers from source inside manylinux_2_28 with GCC 13.
+Linux wheels build OpenSSL 3.5 LTS and flatbuffers from source inside manylinux_2_28 with GCC 13.
 
 ## Version management
 
