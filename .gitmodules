@@ -1,3 +1,3 @@
 [submodule "libcdoc"]
 	path = libcdoc
-	url = https://github.com/namespace-ee/libcdoc.git
+	url = https://github.com/open-eid/libcdoc.git
