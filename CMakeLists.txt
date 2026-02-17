@@ -9,25 +9,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 cmake_policy(SET CMP0078 NEW)  # Standard target names
 cmake_policy(SET CMP0086 NEW)  # Honor SWIG_MODULE_NAME via -module flag
 
-# Apply Python SWIG bindings patch to libcdoc
-# This adds Python-specific typemaps and fixes LockVector template ordering
-find_program(PATCH_EXECUTABLE patch)
-if(PATCH_EXECUTABLE)
-    execute_process(
-        COMMAND ${PATCH_EXECUTABLE} -p1 --forward -i ${CMAKE_CURRENT_SOURCE_DIR}/patches/libcdoc-python.patch
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/libcdoc
-        RESULT_VARIABLE PATCH_RESULT
-        OUTPUT_QUIET
-        ERROR_QUIET
-    )
-    # Result 0 = success, 1 = already applied (which is fine)
-    if(PATCH_RESULT GREATER 1)
-        message(WARNING "Failed to apply libcdoc-python.patch (error ${PATCH_RESULT})")
-    endif()
-else()
-    message(FATAL_ERROR "patch executable not found - required to build Python bindings")
-endif()
-
 # Configure libcdoc build options - disable SWIG in libcdoc, we build it ourselves
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static library" FORCE)
 set(FRAMEWORK OFF CACHE BOOL "Disable framework build" FORCE)
@@ -51,8 +32,7 @@ include(UseSWIG)
 
 set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 
-# Set up SWIG for Python using our custom wrapper that adds Python-specific
-# template instantiations (ByteVector, StringVector, etc.) and director support
+# Set up SWIG for Python using our wrapper that adds camelCase → snake_case renaming
 set(PYCDOC_SWIG_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/swig/pycdoc.i)
 set(CMAKE_SWIG_FLAGS "")
 set_property(SOURCE ${PYCDOC_SWIG_SOURCE} PROPERTY CPLUSPLUS ON)
