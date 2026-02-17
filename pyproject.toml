@@ -32,7 +32,9 @@ classifiers = [
 
 [project.optional-dependencies]
 ldap = ["ldap3>=2.9"]
-test = ["pytest>=7.0"]
+
+[dependency-groups]
+dev = ["pytest>=7.0", "bump-my-version>=0.31", "ruff>=0.9"]
 
 [project.urls]
 Homepage = "https://github.com/namespace-ee/pycdoc"
