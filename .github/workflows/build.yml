@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build wheel
+  test:
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
@@ -33,32 +33,7 @@ jobs:
       - name: Build wheel
         run: uv build --wheel
 
-      - uses: actions/upload-artifact@v6
-        with:
-          name: wheel
-          path: dist/*.whl
-
-  test:
-    name: Test
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v7
-
-      - name: Set up Python
-        run: uv python install 3.12
-
-      - name: Download wheel
-        uses: actions/download-artifact@v7
-        with:
-          name: wheel
-          path: dist
-
-      - name: Install wheel and test
+      - name: Test
         run: |
           uv venv
           uv pip install dist/*.whl pytest cryptography
@@ -66,6 +41,7 @@ jobs:
 
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
+    needs: [test]
     if: github.event_name == 'release' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     strategy:
@@ -160,6 +136,7 @@ jobs:
 
   build_sdist:
     name: Build source distribution
+    needs: [test]
     if: github.event_name == 'release' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
