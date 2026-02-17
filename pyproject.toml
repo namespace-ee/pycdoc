@@ -28,11 +28,14 @@ classifiers = [
     "Programming Language :: Python :: 3.14",
     "Programming Language :: C++",
     "Topic :: Security :: Cryptography",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
 [project.optional-dependencies]
 ldap = ["ldap3>=2.9"]
-test = ["pytest>=7.0"]
+
+[dependency-groups]
+dev = ["pytest>=7.0", "bump-my-version>=0.31", "ruff>=0.9"]
 
 [project.urls]
 Homepage = "https://github.com/namespace-ee/pycdoc"
@@ -44,20 +47,36 @@ Issues = "https://github.com/namespace-ee/pycdoc/issues"
 [tool.scikit-build]
 cmake.version = ">=3.20"
 cmake.build-type = "Release"
-cmake.args = [
-    "-DBUILD_SHARED_LIBS=OFF",
-    "-DBUILD_TOOLS=OFF",
-    "-DFRAMEWORK=OFF",
-    "-DLIBCDOC_WITH_DOCS=OFF",
-]
 wheel.install-dir = "pycdoc"
 wheel.packages = []
 build-dir = "build/{wheel_tag}"
 # git submodules are excluded from sdists by default (git archive ignores them)
 sdist.include = ["libcdoc/**"]
 
-[tool.scikit-build.cmake.define]
-BUILD_SHARED_LIBS = "OFF"
-BUILD_TOOLS = "OFF"
-FRAMEWORK = "OFF"
-LIBCDOC_WITH_DOCS = "OFF"
+[tool.bumpversion]
+current_version = "0.1.0"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "src/pycdoc/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "CMakeLists.txt"
+search = "VERSION {current_version}"
+replace = "VERSION {new_version}"
+
+[tool.ruff]
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["I001", "RUF022"]

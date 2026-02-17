@@ -34,6 +34,11 @@ Thumbs.db
 
 # Test artifacts
 *.cdoc
+*.asice
+*.bdoc
+
+# Local notes
+TODO.md
 
 # Lock files (library - not committed)
 uv.lock

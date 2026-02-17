@@ -110,7 +110,7 @@ index c681964..173770d 100644
 +%feature("director") libcdoc::PKCS11Backend;
 +%feature("director") libcdoc::NetworkBackend;
 +%feature("director") libcdoc::Configuration;
-+%feature("director") libcdoc::ILogger;
++%feature("director") libcdoc::Logger;
 +#endif
 +
  #ifdef SWIGJAVA

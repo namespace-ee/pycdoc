@@ -5,7 +5,7 @@ Section 6, you have the right to modify libcdoc and relink. Here's how.
 
 ## Prerequisites
 
-- Python 3.9+
+- Python 3.10+
 - CMake 3.20+
 - C++23 compiler (GCC 13+, Clang 16+, MSVC 2022+)
 - SWIG 4.0+

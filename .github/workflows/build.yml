@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, master]
+    branches: [main]
   pull_request:
-    branches: [main, master]
+    branches: [main]
   release:
     types: [published]
   workflow_dispatch:
@@ -15,12 +15,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Set up Python
         run: uv python install 3.12
@@ -33,7 +33,7 @@ jobs:
       - name: Build wheel
         run: uv build --wheel
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: wheel
           path: dist/*.whl
@@ -44,16 +44,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Set up Python
         run: uv python install 3.12
 
       - name: Download wheel
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: wheel
           path: dist
@@ -66,6 +66,7 @@ jobs:
 
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
+    if: github.event_name == 'release' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -73,12 +74,12 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Install dependencies (Ubuntu)
         if: runner.os == 'Linux'
@@ -97,11 +98,11 @@ jobs:
           vcpkg install openssl:x64-windows zlib:x64-windows libxml2:x64-windows flatbuffers:x64-windows
 
       - name: Build wheels
-        uses: pypa/cibuildwheel@v2.22.0
+        uses: pypa/cibuildwheel@v3.3.1
         env:
           # Use uv for faster builds
           CIBW_BUILD_FRONTEND: "build[uv]"
-          # Build for Python 3.9-3.13
+          # Build for Python 3.10-3.14
           CIBW_BUILD: "cp310-* cp311-* cp312-* cp313-* cp314-*"
           # Skip 32-bit builds and musllinux
           CIBW_SKIP: "*-win32 *-manylinux_i686 *-musllinux_*"
@@ -110,11 +111,10 @@ jobs:
           CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
           # Install build dependencies in the container (need GCC 13 for C++23, OpenSSL 3.x)
           CIBW_BEFORE_ALL_LINUX: >
-            dnf install -y gcc-toolset-13 perl-IPC-Cmd libxml2-devel zlib-devel &&
-            curl -L https://www.openssl.org/source/openssl-3.0.13.tar.gz | tar xz &&
-            cd openssl-3.0.13 &&
-            CC=/opt/rh/gcc-toolset-13/root/usr/bin/gcc
-            CXX=/opt/rh/gcc-toolset-13/root/usr/bin/g++
+            dnf install -y gcc-toolset-13 perl-IPC-Cmd perl-Time-Piece libxml2-devel zlib-devel &&
+            source /opt/rh/gcc-toolset-13/enable &&
+            curl -L https://www.openssl.org/source/openssl-3.0.19.tar.gz | tar xz &&
+            cd openssl-3.0.19 &&
             ./config --prefix=/usr/local/openssl3 --openssldir=/usr/local/openssl3 &&
             make -j$(nproc) &&
             make install_sw install_ssldirs
@@ -130,8 +130,8 @@ jobs:
             uv pip install --system cmake swig &&
             if ! command -v flatc; then
               cd /tmp &&
-              curl -L https://github.com/google/flatbuffers/archive/refs/tags/v24.3.25.tar.gz | tar xz &&
-              cd flatbuffers-24.3.25 &&
+              curl -L https://github.com/google/flatbuffers/archive/refs/tags/v25.12.19.tar.gz | tar xz &&
+              cd flatbuffers-25.12.19 &&
               cmake -B build -DCMAKE_BUILD_TYPE=Release -DFLATBUFFERS_BUILD_TESTS=OFF &&
               cmake --build build --target install;
             fi
@@ -153,26 +153,27 @@ jobs:
           CIBW_TEST_REQUIRES: pytest
           CIBW_TEST_COMMAND: pytest {project}/tests -v
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
 
   build_sdist:
     name: Build source distribution
+    if: github.event_name == 'release' || github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           submodules: recursive
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
 
       - name: Build sdist
         run: uv build --sdist
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         with:
           name: sdist
           path: dist/*.tar.gz
@@ -189,13 +190,13 @@ jobs:
       id-token: write
 
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           pattern: wheels-*
           path: dist
           merge-multiple: true
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v7
         with:
           name: sdist
           path: dist
