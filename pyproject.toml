@@ -63,3 +63,24 @@ BUILD_SHARED_LIBS = "OFF"
 BUILD_TOOLS = "OFF"
 FRAMEWORK = "OFF"
 LIBCDOC_WITH_DOCS = "OFF"
+
+[tool.bumpversion]
+current_version = "0.1.0"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "src/pycdoc/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "CMakeLists.txt"
+search = "VERSION {current_version}"
+replace = "VERSION {new_version}"
