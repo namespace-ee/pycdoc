@@ -14,7 +14,7 @@ uv add pycdoc
 
 ### Runtime
 - Python 3.10+
-- OpenSSL 3.0+ (usually pre-installed on modern systems)
+- OpenSSL 3.5+ (usually pre-installed on modern systems)
 
 ### Building from Source
 
@@ -22,7 +22,7 @@ Building from source requires:
 - Python 3.10+
 - CMake 3.20+
 - SWIG 4.0+
-- OpenSSL 3.0+
+- OpenSSL 3.5+
 - libxml2
 - zlib
 - FlatBuffers
