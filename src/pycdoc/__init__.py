@@ -67,7 +67,7 @@ from pycdoc.libcdoc import (
     Logger,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 # LDAP server for Estonian ID card certificates
 _SK_LDAP_SERVER = "esteid.ldap.sk.ee"

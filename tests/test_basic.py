@@ -107,10 +107,6 @@ class TestVersion:
         for part in parts:
             assert part.isdigit()
 
-    def test_package_version(self):
-        from pycdoc import __version__
-        assert __version__ == "0.1.0"
-
 
 class TestErrorCodes:
     """Test error codes and error string function."""
